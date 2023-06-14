@@ -3,17 +3,17 @@
 
 from math import floor
 from statistics import median
-from itertools import compress
+# from itertools import compress
 import numpy as np
-import os
-import csv
-import matplotlib
+# import os
+# import csv
+# import matplotlib
 # import fooof
 # from fooof.data import FOOOFResults
 # from fooof.sim.gen import gen_periodic
 # from fooof.sim.gen import gen_aperiodic
 # from fooof.objs.utils import combine_fooofs
-from copy import deepcopy
+# from copy import deepcopy
 
 # F should be a nxm numpy array
 # where n is the number of channels, m is the number of samples
