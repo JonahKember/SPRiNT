@@ -137,74 +137,74 @@ def SPRiNT_stft_py(F, opt):
     return output
 
 
-def SPRiNT_remove_outliers(fooof_chan, ts, opt):
-    ''' SPRiNT_remove_outliers: helper function to remove outlier peaks
-    according to user-defined specifications
+# def SPRiNT_remove_outliers(fooof_chan, ts, opt):
+#     ''' SPRiNT_remove_outliers: helper function to remove outlier peaks
+#     according to user-defined specifications
 
-    Input
-    fooof_chan - fooof model for a given channel (FOOOFObject)
-    ts - sampled times (numpy array)
-    opt - Model settings/hyperparameters (dict)
+#     Input
+#     fooof_chan - fooof model for a given channel (FOOOFObject)
+#     ts - sampled times (numpy array)
+#     opt - Model settings/hyperparameters (dict)
 
-    Author: Luc Wilson (2023)
-    '''
-    n_peaks_changed = True
-    peaks = fooof_chan.get_params('gaussian_params')
-    n_peaks = len(peaks)
-    npeak_bytime = fooof_chan.n_peaks_
+#     Author: Luc Wilson (2023)
+#     '''
+#     n_peaks_changed = True
+#     peaks = fooof_chan.get_params('gaussian_params')
+#     n_peaks = len(peaks)
+#     npeak_bytime = fooof_chan.n_peaks_
 
-    peaks_tmp = peaks
-    n_peaks_tmp = n_peaks
-    npeak_bytime_tmp = deepcopy(npeak_bytime)
+#     peaks_tmp = peaks
+#     n_peaks_tmp = n_peaks
+#     npeak_bytime_tmp = deepcopy(npeak_bytime)
 
-    while n_peaks_changed:
-        n_peaks_changed = False
-        remove = [False for _ in range(n_peaks_tmp)]
-        n_peaks_tmp2 = n_peaks_tmp
+#     while n_peaks_changed:
+#         n_peaks_changed = False
+#         remove = [False for _ in range(n_peaks_tmp)]
+#         n_peaks_tmp2 = n_peaks_tmp
 
-        for p in range(n_peaks_tmp):
-            n_close = 0
-            close_t = [(np.abs(peaks_tmp[p,3] - peaks_tmp[r,3])\
-                <= opt['maxTime']) for r in range(n_peaks_tmp2)]
-            close_f = [(np.abs(peaks_tmp[p,0] - peaks_tmp[r,0])\
-                <= opt['maxFreq']) for r in range(n_peaks_tmp2)]
+#         for p in range(n_peaks_tmp):
+#             n_close = 0
+#             close_t = [(np.abs(peaks_tmp[p,3] - peaks_tmp[r,3])\
+#                 <= opt['maxTime']) for r in range(n_peaks_tmp2)]
+#             close_f = [(np.abs(peaks_tmp[p,0] - peaks_tmp[r,0])\
+#                 <= opt['maxFreq']) for r in range(n_peaks_tmp2)]
 
-            for r in range(n_peaks_tmp2):
-                if close_t[r] and close_f[r]:
-                    n_close +=1 # had to flesh out to avoid bugs
+#             for r in range(n_peaks_tmp2):
+#                 if close_t[r] and close_f[r]:
+#                     n_close +=1 # had to flesh out to avoid bugs
 
-            if n_close < (opt['minNear']+1): # fewer than min neighbors
-                remove[p] = True # remove this peak
-                npeak_bytime_tmp[int(peaks_tmp[p,3])] -= 1 # one less peak here
-                n_peaks_tmp -= 1 # one less peak overall
-                n_peaks_changed = True
+#             if n_close < (opt['minNear']+1): # fewer than min neighbors
+#                 remove[p] = True # remove this peak
+#                 npeak_bytime_tmp[int(peaks_tmp[p,3])] -= 1 # one less peak here
+#                 n_peaks_tmp -= 1 # one less peak overall
+#                 n_peaks_changed = True
 
-        peaks_tmp = peaks_tmp[[not bln for bln in remove]]
+#         peaks_tmp = peaks_tmp[[not bln for bln in remove]]
 
-    fg = list([])
-    for t in range(len(ts)):
-        tmp = fooof_chan.get_fooof(t)
-        if npeak_bytime_tmp[t] != npeak_bytime[t]:
-            if npeak_bytime_tmp[t] == 0:
-                # all peaks at this time were removed
-                gaus_pars = []
-                pk_fit = gen_periodic(tmp.freqs, [])
-                ap_pars = tmp._simple_ap_fit(tmp.freqs,tmp.power_spectrum)
-                ap_fit = gen_aperiodic(tmp.freqs, ap_pars)
-            else:
-                # some peaks at this time were removed
-                # finds the indices where time = t
-                gaus_pars = peaks_tmp[np.where(peaks_tmp[:,3] == t)[0],:3]
-                pk_fit = gen_periodic(tmp.freqs, np.ndarray.flatten(gaus_pars))
-                ap_pars = tmp._simple_ap_fit(tmp.freqs,tmp.power_spectrum-pk_fit)
-                ap_fit = gen_aperiodic(tmp.freqs, ap_pars)
-            error = np.abs(tmp.power_spectrum - ap_fit - pk_fit).mean()
-            r_squared = np.corrcoef(tmp.power_spectrum, ap_fit + pk_fit)[0][1]**2
-            tmp.add_results(FOOOFResults(ap_pars,\
-                tmp._create_peak_params(gaus_pars), r_squared, error, gaus_pars))
-        fg.append(tmp)
-    fg = combine_fooofs(fg)
-    return fg
+#     fg = list([])
+#     for t in range(len(ts)):
+#         tmp = fooof_chan.get_fooof(t)
+#         if npeak_bytime_tmp[t] != npeak_bytime[t]:
+#             if npeak_bytime_tmp[t] == 0:
+#                 # all peaks at this time were removed
+#                 gaus_pars = []
+#                 pk_fit = gen_periodic(tmp.freqs, [])
+#                 ap_pars = tmp._simple_ap_fit(tmp.freqs,tmp.power_spectrum)
+#                 ap_fit = gen_aperiodic(tmp.freqs, ap_pars)
+#             else:
+#                 # some peaks at this time were removed
+#                 # finds the indices where time = t
+#                 gaus_pars = peaks_tmp[np.where(peaks_tmp[:,3] == t)[0],:3]
+#                 pk_fit = gen_periodic(tmp.freqs, np.ndarray.flatten(gaus_pars))
+#                 ap_pars = tmp._simple_ap_fit(tmp.freqs,tmp.power_spectrum-pk_fit)
+#                 ap_fit = gen_aperiodic(tmp.freqs, ap_pars)
+#             error = np.abs(tmp.power_spectrum - ap_fit - pk_fit).mean()
+#             r_squared = np.corrcoef(tmp.power_spectrum, ap_fit + pk_fit)[0][1]**2
+#             tmp.add_results(FOOOFResults(ap_pars,\
+#                 tmp._create_peak_params(gaus_pars), r_squared, error, gaus_pars))
+#         fg.append(tmp)
+#     fg = combine_fooofs(fg)
+#     return fg
 
 
 
