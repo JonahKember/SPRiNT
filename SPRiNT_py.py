@@ -19,7 +19,7 @@ import numpy as np
 # where n is the number of channels, m is the number of samples
 # opt should be a dictionary
 
-def SPRiNT_stft_py(F, opt):
+def SPRiNT_stft_py(F):
     ''' SPRiNT_stft_py: Compute a locally averaged short-time Fourier transform
     (for use in SPRiNT)
 
@@ -34,6 +34,14 @@ def SPRiNT_stft_py(F, opt):
 
     Author: Luc Wilson (2023)
     '''
+    # Specify options.
+    opt = {
+        "sfreq": 200,  # Input sampling rate
+        "WinLength": 1,  # STFT window length
+        "WinOverlap": 50,  # Overlap between sliding windows (in %)
+        "WinAverage": 5, # Number of overlapping windows being averaged
+    }
+    
     # Get sampling frequency
     n_chan = F.shape
     # print(n_chan)
