@@ -8,11 +8,11 @@ import numpy as np
 import os
 import csv
 import matplotlib
-import fooof
-from fooof.data import FOOOFResults
-from fooof.sim.gen import gen_periodic
-from fooof.sim.gen import gen_aperiodic
-from fooof.objs.utils import combine_fooofs
+# import fooof
+# from fooof.data import FOOOFResults
+# from fooof.sim.gen import gen_periodic
+# from fooof.sim.gen import gen_aperiodic
+# from fooof.objs.utils import combine_fooofs
 from copy import deepcopy
 
 # F should be a nxm numpy array
